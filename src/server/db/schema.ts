@@ -1,6 +1,7 @@
 import { relations } from "drizzle-orm";
 import {
   boolean,
+  integer,
   pgTable,
   text,
   timestamp,
@@ -14,10 +15,12 @@ export const user = pgTable("user", {
     .$defaultFn(() => false)
     .notNull(),
   image: text("image"),
-  role: text("role").default("user").notNull(),
-  banned: boolean("banned").default(false).notNull(),
-  banReason: text("ban_reason"),
-  banExpires: timestamp("ban_expires"),
+  phone: text("phone"),
+  company: text("company"),
+  bio: text("bio"),
+  onboardingCompleted: boolean("onboarding_completed")
+    .$defaultFn(() => false)
+    .notNull(),
   createdAt: timestamp("created_at")
     .$defaultFn(() => new Date())
     .notNull(),
@@ -66,9 +69,71 @@ export const verification = pgTable("verification", {
   updatedAt: timestamp("updated_at").$defaultFn(() => new Date()),
 });
 
+export const client = pgTable("client", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  name: text("name").notNull(),
+  document: text("document"),
+  email: text("email"),
+  phone: text("phone"),
+  address: text("address"),
+  city: text("city"),
+  state: text("state"),
+  notes: text("notes"),
+  image: text("image"),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at")
+    .$defaultFn(() => new Date())
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .$defaultFn(() => new Date())
+    .notNull(),
+});
+
+export const analysis = pgTable("analysis", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  title: text("title").notNull(),
+  description: text("description"),
+  slug: text("slug").notNull().unique(),
+  visitDate: timestamp("visit_date").notNull(),
+  clientId: text("client_id")
+    .notNull()
+    .references(() => client.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at")
+    .$defaultFn(() => new Date())
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .$defaultFn(() => new Date())
+    .notNull(),
+});
+
+export const analysisPhoto = pgTable("analysis_photo", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  imageUrl: text("image_url").notNull(),
+  description: text("description").notNull(),
+  order: integer("order").notNull().default(0),
+  analysisId: text("analysis_id")
+    .notNull()
+    .references(() => analysis.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at")
+    .$defaultFn(() => new Date())
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .$defaultFn(() => new Date())
+    .notNull(),
+});
+
 export const userRelations = relations(user, ({ many }) => ({
   account: many(account),
   session: many(session),
+  clients: many(client),
 }));
 
 export const accountRelations = relations(account, ({ one }) => ({
@@ -77,4 +142,21 @@ export const accountRelations = relations(account, ({ one }) => ({
 
 export const sessionRelations = relations(session, ({ one }) => ({
   user: one(user, { fields: [session.userId], references: [user.id] }),
+}));
+
+export const clientRelations = relations(client, ({ one, many }) => ({
+  user: one(user, { fields: [client.userId], references: [user.id] }),
+  analyses: many(analysis),
+}));
+
+export const analysisRelations = relations(analysis, ({ one, many }) => ({
+  client: one(client, { fields: [analysis.clientId], references: [client.id] }),
+  photos: many(analysisPhoto),
+}));
+
+export const analysisPhotoRelations = relations(analysisPhoto, ({ one }) => ({
+  analysis: one(analysis, {
+    fields: [analysisPhoto.analysisId],
+    references: [analysis.id],
+  }),
 }));
