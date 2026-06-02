@@ -213,3 +213,7 @@ DATABASE_URL=           # PostgreSQL connection string
 - `sonner` - Toast notifications
 - `lucide-react` - Icons
 - `class-variance-authority` - Component variants (via shadcn)
+
+SEMPRE USAR A SKILL 'tlc-spec-driven' PARA QUALQUER ALTERAÇÃO OU ADIÇÃO NO CODIGO
+
+SEMPRE MANTER A DOC ATUALIZADA

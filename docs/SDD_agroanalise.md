@@ -1,4 +1,4 @@
-# SDD — AgroVision
+# SDD — AgroAnalise
 
 Status: Documento de especificação oficial
 Data: 2026-06-01
@@ -14,7 +14,7 @@ Data: 2026-06-01
 - Regra: projeto iniciado clonando a base, sem estrutura vazia.
 
 ### 0.2 Primeiros passos de adaptação da base T3 para o padrão SDD
-1. ✅ Renomear projeto para `agrovision` e ajustar metadados (`package.json`, `README`, `.env.example`).
+1. ✅ Renomear projeto para `agroanalise` e ajustar metadados (`package.json`, `README`, `.env.example`).
 2. ✅ Confirmar stack: Next.js App Router + TypeScript strict + tRPC + Drizzle + Better Auth.
 3. ✅ Substituir schema placeholder pelo schema do domínio agronômico (client, analysis, analysisPhoto).
 4. ✅ Criar migration inicial e validar ciclo local (`db:generate`, `db:migrate`, `db:studio`).
