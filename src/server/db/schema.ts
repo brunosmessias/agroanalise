@@ -18,6 +18,8 @@ export const user = pgTable("user", {
   phone: text("phone"),
   company: text("company"),
   bio: text("bio"),
+  slug: text("slug").unique(),
+  specialties: text("specialties"),
   onboardingCompleted: boolean("onboarding_completed")
     .$defaultFn(() => false)
     .notNull(),

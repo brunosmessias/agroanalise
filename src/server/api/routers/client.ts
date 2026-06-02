@@ -43,10 +43,10 @@ export const clientRouter = createTRPCRouter({
             createdAt: client.createdAt,
             updatedAt: client.updatedAt,
             totalAnalyses: sql<number>`(
-              SELECT COUNT(*)::int FROM ${analysis} a WHERE a.client_id = ${client.id}
+              SELECT COUNT(*)::int FROM "analysis" a WHERE a."client_id" = "client"."id"
             )`,
             lastVisit: sql<Date | null>`(
-              SELECT MAX(visit_date) FROM ${analysis} a WHERE a.client_id = ${client.id}
+              SELECT MAX("visit_date") FROM "analysis" a WHERE a."client_id" = "client"."id"
             )`,
           })
           .from(client)

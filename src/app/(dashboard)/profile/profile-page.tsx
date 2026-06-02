@@ -7,14 +7,20 @@ import {
   Briefcase,
   Building2,
   Camera,
+  Check,
+  Copy,
+  ExternalLink,
+  Globe,
   Loader2,
   Mail,
   Phone,
   Save,
   Shield,
+  Sparkles,
   User,
 } from "lucide-react";
 import { toast } from "sonner";
+import { AiRewriteButton } from "~/components/ai/ai-rewrite-button";
 import { api, type RouterOutputs } from "~/trpc/react";
 import {
   updateProfileSchema,
@@ -40,6 +46,7 @@ type User = NonNullable<RouterOutputs["user"]["me"]>;
 
 export function ProfilePage({ user: initialUser }: { user: User }) {
   const [image, setImage] = useState<string | null>(initialUser.image);
+  const [copied, setCopied] = useState(false);
   const utils = api.useUtils();
 
   const {
@@ -56,11 +63,14 @@ export function ProfilePage({ user: initialUser }: { user: User }) {
       phone: initialUser.phone ?? "",
       company: initialUser.company ?? "",
       bio: initialUser.bio ?? "",
+      slug: initialUser.slug ?? "",
+      specialties: initialUser.specialties ?? "",
       image: initialUser.image,
     },
   });
 
   const name = watch("name");
+  const slug = watch("slug");
 
   useEffect(() => {
     reset({
@@ -68,6 +78,8 @@ export function ProfilePage({ user: initialUser }: { user: User }) {
       phone: initialUser.phone ?? "",
       company: initialUser.company ?? "",
       bio: initialUser.bio ?? "",
+      slug: initialUser.slug ?? "",
+      specialties: initialUser.specialties ?? "",
       image: initialUser.image,
     });
     setImage(initialUser.image);
@@ -87,6 +99,8 @@ export function ProfilePage({ user: initialUser }: { user: User }) {
           phone: data.phone ?? "",
           company: data.company ?? "",
           bio: data.bio ?? "",
+          slug: data.slug ?? "",
+          specialties: data.specialties ?? "",
           image: data.image,
         });
         setImage(data.image);
@@ -111,6 +125,18 @@ export function ProfilePage({ user: initialUser }: { user: User }) {
     .join("")
     .toUpperCase()
     .slice(0, 2);
+
+  const savedSlug = initialUser.slug;
+  const publicPath = savedSlug ? `/agronomo/${savedSlug}` : null;
+
+  const copyLink = async () => {
+    if (!publicPath) return;
+    const url = `${window.location.origin}${publicPath}`;
+    await navigator.clipboard.writeText(url);
+    setCopied(true);
+    toast.success("Link copiado!");
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
     <div className="space-y-6">
@@ -143,7 +169,7 @@ export function ProfilePage({ user: initialUser }: { user: User }) {
               </p>
               <Badge variant="secondary" className="mt-3">
                 <Shield className="mr-1 h-3 w-3" />
-                Agricultor
+                Agrônomo
               </Badge>
             </div>
 
@@ -186,7 +212,7 @@ export function ProfilePage({ user: initialUser }: { user: User }) {
                 <ImageUploader
                   value={image}
                   onChange={setImage}
-                  name={name || "Agricultor"}
+                  name={name || "Agrônomo"}
                   purpose="avatar"
                   size="md"
                 />
@@ -208,7 +234,7 @@ export function ProfilePage({ user: initialUser }: { user: User }) {
                   <div>
                     <CardTitle>Informações Pessoais</CardTitle>
                     <CardDescription>
-                      Seus dados profissionais como agricultor
+                      Seus dados profissionais como agrônomo
                     </CardDescription>
                   </div>
                 </div>
@@ -284,10 +310,17 @@ export function ProfilePage({ user: initialUser }: { user: User }) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="bio" className="flex items-center gap-1.5">
-                    <Briefcase className="h-3.5 w-3.5" />
-                    Sobre você
-                  </Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="bio" className="flex items-center gap-1.5">
+                      <Briefcase className="h-3.5 w-3.5" />
+                      Sobre você
+                    </Label>
+                    <AiRewriteButton
+                      value={watch("bio") ?? ""}
+                      onRewrite={(text) => setValue("bio", text)}
+                      variant="bio"
+                    />
+                  </div>
                   <Textarea
                     id="bio"
                     rows={3}
@@ -301,20 +334,127 @@ export function ProfilePage({ user: initialUser }: { user: User }) {
                   )}
                 </div>
 
-                <div className="flex items-center justify-end gap-2 border-t pt-4">
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting || updateMutation.isPending}
-                  >
-                    {(isSubmitting || updateMutation.isPending) && (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    )}
-                    <Save className="mr-2 h-4 w-4" />
-                    Salvar alterações
-                  </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="mt-6">
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-lg">
+                    <Globe className="text-primary h-5 w-5" />
+                  </div>
+                  <div>
+                    <CardTitle>Página pública</CardTitle>
+                    <CardDescription>
+                      Sua página de apresentação para conquistar novos clientes
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="slug">Endereço da sua página</Label>
+                  <div className="flex items-center">
+                    <span className="border-input bg-muted text-muted-foreground inline-flex h-9 items-center rounded-l-md border border-r-0 px-3 text-sm">
+                      /agronomo/
+                    </span>
+                    <Input
+                      id="slug"
+                      placeholder="joao-silva"
+                      className="rounded-l-none"
+                      {...register("slug")}
+                    />
+                  </div>
+                  {errors.slug ? (
+                    <p className="text-destructive text-sm">
+                      {errors.slug.message}
+                    </p>
+                  ) : (
+                    <p className="text-muted-foreground text-xs">
+                      Use letras, números e hífens. Ex.: <code>joao-silva</code>
+                    </p>
+                  )}
+                </div>
+
+                {publicPath && !slug && (
+                  <p className="text-muted-foreground text-xs">
+                    Defina um endereço acima para publicar sua página.
+                  </p>
+                )}
+
+                {publicPath && (
+                  <div className="bg-muted/40 flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="min-w-0">
+                      <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+                        Seu link
+                      </p>
+                      <p className="truncate text-sm font-medium">
+                        {publicPath}
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={copyLink}
+                      >
+                        {copied ? (
+                          <Check className="mr-1.5 h-4 w-4" />
+                        ) : (
+                          <Copy className="mr-1.5 h-4 w-4" />
+                        )}
+                        {copied ? "Copiado" : "Copiar"}
+                      </Button>
+                      <Button asChild variant="outline" size="sm">
+                        <a
+                          href={publicPath}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <ExternalLink className="mr-1.5 h-4 w-4" />
+                          Abrir
+                        </a>
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  <Label htmlFor="specialties" className="flex items-center gap-1.5">
+                    <Sparkles className="h-3.5 w-3.5" />
+                    Especialidades
+                  </Label>
+                  <Input
+                    id="specialties"
+                    placeholder="Manejo de solo, Controle de pragas, Irrigação"
+                    {...register("specialties")}
+                  />
+                  {errors.specialties ? (
+                    <p className="text-destructive text-sm">
+                      {errors.specialties.message}
+                    </p>
+                  ) : (
+                    <p className="text-muted-foreground text-xs">
+                      Separe por vírgulas. Aparecem como etiquetas na sua página.
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
+
+            <div className="mt-6 flex items-center justify-end gap-2">
+              <Button
+                type="submit"
+                disabled={isSubmitting || updateMutation.isPending}
+              >
+                {(isSubmitting || updateMutation.isPending) && (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                )}
+                <Save className="mr-2 h-4 w-4" />
+                Salvar alterações
+              </Button>
+            </div>
           </form>
         </div>
       </div>

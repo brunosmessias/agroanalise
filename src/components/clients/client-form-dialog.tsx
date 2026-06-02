@@ -172,7 +172,7 @@ export function ClientFormDialog({
             <ImageUploader
               value={image}
               onChange={(url) => setValue("image", url, { shouldDirty: true })}
-              name={watch("name") || "Agricultor"}
+              name={watch("name") || "Agrônomo"}
               purpose="avatar"
               size="lg"
             />
