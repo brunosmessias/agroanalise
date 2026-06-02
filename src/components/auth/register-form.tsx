@@ -12,6 +12,7 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
+import Image from "next/image";
 
 export function RegisterForm() {
   const router = useRouter();
@@ -38,12 +39,22 @@ export function RegisterForm() {
       return;
     }
 
-    router.push("/login");
+    router.push("/onboarding");
   };
 
   return (
     <Card className="w-full max-w-sm">
       <CardHeader className="text-center">
+        <div className="mx-auto mb-2">
+          <Image
+            src="/logo-full-2x.png"
+            alt="AgroAnalise"
+            width={160}
+            height={110}
+            className="mx-auto"
+            priority
+          />
+        </div>
         <CardTitle className="text-2xl">Criar conta</CardTitle>
         <CardDescription>
           Preencha seus dados para criar uma conta

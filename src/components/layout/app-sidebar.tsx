@@ -1,8 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard } from "lucide-react";
+import {
+  LayoutDashboard,
+  Trees,
+  User,
+} from "lucide-react";
 
 import { useRouter } from "next/navigation";
 import {
@@ -27,14 +32,24 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { LogOut, User, ChevronsUpDown } from "lucide-react";
+import { LogOut, ChevronsUpDown } from "lucide-react";
 import { authClient } from "~/lib/auth-client";
 
 const navItems = [
   {
     title: "Dashboard",
-    href: "/",
+    href: "/dashboard",
     icon: LayoutDashboard,
+  },
+  {
+    title: "Fazendas",
+    href: "/clients",
+    icon: Trees,
+  },
+  {
+    title: "Meu Perfil",
+    href: "/profile",
+    icon: User,
   },
 ];
 
@@ -68,13 +83,19 @@ export function AppSidebar({ user }: AppSidebarProps) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/">
-                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <LayoutDashboard className="size-4" />
+              <Link href="/dashboard">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg">
+                  <Image
+                    src="/logo-mini.png"
+                    alt="AgroAnalise"
+                    width={32}
+                    height={32}
+                    className="rounded-md"
+                  />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">Projeto Novo</span>
-                  <span className="truncate text-xs">Dashboard</span>
+                  <span className="truncate font-semibold">AgroAnalise</span>
+                  <span className="truncate text-xs">Gestão Agronômica</span>
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -155,7 +176,9 @@ export function AppSidebar({ user }: AppSidebarProps) {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => router.push("/profile")}
+                >
                   <User className="mr-2 h-4 w-4" />
                   Perfil
                 </DropdownMenuItem>

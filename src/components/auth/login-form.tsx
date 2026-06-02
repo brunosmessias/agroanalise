@@ -12,6 +12,8 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
+import Image from "next/image";
+import Link from "next/link";
 
 export function LoginForm() {
   const router = useRouter();
@@ -37,13 +39,23 @@ export function LoginForm() {
       return;
     }
 
-    router.push("/");
+    router.push("/dashboard");
     router.refresh();
   };
 
   return (
     <Card className="w-full max-w-sm">
       <CardHeader className="text-center">
+        <div className="mx-auto mb-2">
+          <Image
+            src="/logo-full-2x.png"
+            alt="AgroAnalise"
+            width={160}
+            height={110}
+            className="mx-auto"
+            priority
+          />
+        </div>
         <CardTitle className="text-2xl">Entrar</CardTitle>
         <CardDescription>
           Insira seus dados para acessar sua conta
@@ -92,6 +104,15 @@ export function LoginForm() {
               Cadastre-se
             </a>
           </p>
+
+          <div className="text-center">
+            <Link
+              href="/"
+              className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground"
+            >
+              Voltar para a página inicial
+            </Link>
+          </div>
         </form>
       </CardContent>
     </Card>

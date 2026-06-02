@@ -32,6 +32,10 @@ export function ProfileDropdown({ user }: ProfileDropdownProps) {
     router.push("/login");
   };
 
+  const handleProfile = () => {
+    router.push("/profile");
+  };
+
   const initials = user.name
     .split(" ")
     .map((n) => n[0])
@@ -60,9 +64,9 @@ export function ProfileDropdown({ user }: ProfileDropdownProps) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={handleProfile}>
             <User className="mr-2 h-4 w-4" />
-            <span>Perfil</span>
+            <span>Meu Perfil</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
