@@ -46,6 +46,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { toast } from "sonner";
+import { AiRewriteButton } from "~/components/ai/ai-rewrite-button";
 
 type ClientType = NonNullable<RouterOutputs["clients"]["getById"]>;
 type AnalysisType = NonNullable<RouterOutputs["analyses"]["getById"]>;
@@ -478,7 +479,14 @@ export function AnalysisEditPage({ client, analysis }: AnalysisEditPageProps) {
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="analysisDesc">Descrição</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="analysisDesc">Descrição</Label>
+                <AiRewriteButton
+                  value={description}
+                  onRewrite={setDescription}
+                  variant="description"
+                />
+              </div>
               <Textarea
                 id="analysisDesc"
                 value={description}
@@ -684,6 +692,14 @@ export function AnalysisEditPage({ client, analysis }: AnalysisEditPageProps) {
                         disabled={photo.isUploading}
                         rows={2}
                         className="resize-none text-sm"
+                      />
+                      <AiRewriteButton
+                        value={photo.description}
+                        onRewrite={(text) =>
+                          handleDescriptionChange(index, text)
+                        }
+                        variant="description"
+                        disabled={photo.isUploading}
                       />
                     </div>
                   </div>
