@@ -11,11 +11,14 @@ import {
   MapPin,
   Share2,
   ShieldCheck,
+  Sparkles,
   Sprout,
   Users,
+  WandSparkles,
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { LandingNav } from "~/components/landing/landing-nav";
+import { cn } from "~/lib/utils";
 
 export const metadata: Metadata = {
   title: "AgroAnalise — Relatórios agronômicos que impressionam",
@@ -28,6 +31,7 @@ const features = [
     icon: Camera,
     title: "Análises com fotos",
     desc: "Registre cada ponto da visita com fotos e a descrição técnica do agrônomo. As imagens são o centro do relatório.",
+    size: "lg" as const,
   },
   {
     icon: Share2,
@@ -45,9 +49,16 @@ const features = [
     desc: "Localização, documentos e dados de contato organizados junto a cada análise técnica.",
   },
   {
+    icon: WandSparkles,
+    title: "IA para seus textos",
+    desc: "Escreva no campo e deixe a IA reescrever com linguagem profissional e técnica. Um clique, e seu relatório fica pronto.",
+    size: "md" as const,
+  },
+  {
     icon: ShieldCheck,
     title: "Profissional e confiável",
     desc: "Relatórios padronizados com a sua identidade, que transmitem credibilidade ao seu trabalho.",
+    size: "md" as const,
   },
   {
     icon: BarChart3,
@@ -146,12 +157,13 @@ export default function LandingPage() {
 
       {/* Stats band */}
       <section className="bg-muted/30 border-y">
-        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-4 py-10 sm:px-6 md:grid-cols-4 lg:px-8">
+        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-4 py-10 sm:px-6 md:grid-cols-5 lg:px-8">
           {[
             { v: "100%", l: "Online e acessível" },
             { v: "1 link", l: "Para compartilhar" },
             { v: "Minutos", l: "Por relatório" },
             { v: "∞", l: "Fotos por análise" },
+            { v: "IA", l: "Para melhorar textos" },
           ].map((s) => (
             <div key={s.l} className="text-center">
               <p className="text-primary dark:text-chart-1 text-3xl font-bold tracking-tight">
@@ -164,7 +176,7 @@ export default function LandingPage() {
       </section>
 
       {/* Features */}
-      <section id="recursos" className="py-20 sm:py-28">
+      <section id="recursos" className="bg-muted/30 border-y py-20 sm:py-28">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <span className="text-primary dark:text-chart-1 text-xs font-semibold tracking-[0.2em] uppercase">
@@ -179,19 +191,50 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-14 grid auto-rows-[220px] grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {features.map((f) => (
               <div
                 key={f.title}
-                className="group bg-card relative overflow-hidden rounded-2xl border p-6 transition-all hover:-translate-y-1 hover:shadow-lg"
+                className={cn(
+                  "group bg-card relative overflow-hidden rounded-2xl border p-6 transition-all hover:-translate-y-1 hover:shadow-lg",
+                  f.size === "lg" && "sm:col-span-2 sm:row-span-2 sm:p-8",
+                  f.size === "md" && "sm:col-span-2",
+                )}
               >
-                <div className="bg-primary/10 text-primary dark:bg-primary/20 dark:text-chart-1 flex h-11 w-11 items-center justify-center rounded-xl transition-transform group-hover:scale-110">
-                  <f.icon className="h-5 w-5" />
+                <div
+                  className={cn(
+                    "flex h-full flex-col justify-center py-4",
+                    f.size === "lg" && "sm:py-4",
+                    !f.size && "sm:p-0",
+                  )}
+                >
+                  <div
+                    className={cn(
+                      "bg-primary/10 text-primary dark:bg-primary/20 dark:text-chart-1 flex items-center justify-center rounded-xl transition-transform group-hover:scale-110",
+                      f.size === "lg" ? "h-14 w-14" : "h-11 w-11",
+                    )}
+                  >
+                    <f.icon
+                      className={cn(f.size === "lg" ? "h-7 w-7" : "h-5 w-5")}
+                    />
+                  </div>
+                  <h3
+                    className={cn(
+                      "mt-5 font-semibold",
+                      f.size === "lg" ? "text-xl" : "text-lg",
+                    )}
+                  >
+                    {f.title}
+                  </h3>
+                  <p
+                    className={cn(
+                      "text-muted-foreground mt-2 leading-relaxed",
+                      f.size === "lg" ? "text-base" : "text-sm",
+                    )}
+                  >
+                    {f.desc}
+                  </p>
                 </div>
-                <h3 className="mt-5 text-lg font-semibold">{f.title}</h3>
-                <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
-                  {f.desc}
-                </p>
               </div>
             ))}
           </div>
@@ -287,8 +330,103 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* AI section */}
+      <section className="bg-muted/30 border-y py-20 sm:py-28">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+            <div>
+              <span className="text-primary dark:text-chart-1 inline-flex items-center gap-1.5 text-xs font-semibold tracking-[0.2em] uppercase">
+                <Sparkles className="h-3.5 w-3.5" />
+                Inteligência Artificial
+              </span>
+              <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
+                Textos profissionais com um clique
+              </h2>
+              <p className="text-muted-foreground mt-4 text-lg leading-relaxed">
+                Escreva suas observações no campo como quiser. A IA reescreve
+                com linguagem técnica, clara e profissional — pronta para enviar
+                ao cliente.
+              </p>
+              <ul className="mt-8 space-y-4">
+                {[
+                  {
+                    icon: WandSparkles,
+                    t: "Reescrita inteligente",
+                    d: "Um clique transforma rascunhos em textos profissionais.",
+                  },
+                  {
+                    icon: Check,
+                    t: "Você tem controle total",
+                    d: "Aceite o texto melhorado ou desfaça com um clique.",
+                  },
+                  {
+                    icon: Sparkles,
+                    t: "Funciona em qualquer campo",
+                    d: "Descrição da análise, legendas de fotos e bio do perfil.",
+                  },
+                ].map((item) => (
+                  <li key={item.t} className="flex gap-3.5">
+                    <span className="bg-primary/10 text-primary dark:bg-primary/20 dark:text-chart-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg">
+                      <item.icon className="h-4 w-4" />
+                    </span>
+                    <div>
+                      <p className="font-semibold">{item.t}</p>
+                      <p className="text-muted-foreground text-sm">{item.d}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="relative">
+              <div className="bg-card overflow-hidden rounded-2xl border shadow-xl">
+                <div className="from-primary/5 to-chart-1/5 border-b bg-gradient-to-r px-6 py-4">
+                  <p className="text-sm font-semibold">
+                    Passo 1 — Detalhes da análise
+                  </p>
+                </div>
+                <div className="space-y-4 p-6">
+                  <div className="space-y-2">
+                    <p className="text-muted-foreground text-xs font-medium">
+                      Descrição
+                    </p>
+                    <div className="bg-muted/50 rounded-lg border p-3 text-sm leading-relaxed">
+                      <p className="text-muted-foreground line-through">
+                        solo tava meio seco no talhão norte, teve umas manchas
+                        de ferrugem nas folhas mais baixas, recomendei aplicar
+                        fungicida
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="bg-primary/10 text-primary dark:bg-chart-1 flex h-5 w-5 items-center justify-center rounded">
+                      <Sparkles className="h-3 w-3" />
+                    </div>
+                    <div className="from-primary/40 to-chart-1/40 h-0.5 flex-1 animate-pulse rounded-full bg-gradient-to-r" />
+                    <span className="text-primary text-xs font-medium">
+                      Melhorando com IA...
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="rounded-lg border border-emerald-200 bg-emerald-50/50 p-3 text-sm leading-relaxed dark:border-emerald-900/50 dark:bg-emerald-950/20">
+                      Durante a vistoria no Talhão Norte, foi constatada a
+                      presença de solo com baixa umidade e manchas
+                      características de ferrugem asiática nas folhas
+                      inferiores. Recomenda-se a aplicação de fungicida
+                      específico para controle da doença, seguido de
+                      monitoramento em 15 dias.
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="from-primary/20 to-chart-1/10 absolute -inset-4 -z-10 rounded-3xl bg-gradient-to-br blur-2xl" />
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
-      <section className="px-4 pb-24 sm:px-6 lg:px-8">
+      <section className="px-4 pt-20 pb-24 sm:px-6 sm:pt-28 lg:px-8">
         <div className="from-primary to-primary/40 relative mx-auto max-w-5xl overflow-hidden rounded-3xl bg-gradient-to-br px-6 py-16 text-center shadow-xl sm:px-12 sm:py-20">
           <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
           <div className="bg-chart-1/10 absolute -bottom-24 -left-24 h-72 w-72 rounded-full blur-3xl" />
