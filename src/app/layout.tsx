@@ -9,9 +9,23 @@ import { ThemeProvider } from "~/components/theme-provider";
 import { TooltipProvider } from "~/components/ui/tooltip";
 
 export const metadata: Metadata = {
-  title: "Projeto Novo",
-  description: "Sistema de autenticação e permissões",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
+  title: {
+    default: "AgroAnalise — Relatórios agronômicos que impressionam",
+    template: "%s | AgroAnalise",
+  },
+  description:
+    "Documente visitas técnicas com fotos e análises, e compartilhe relatórios profissionais com seus clientes em um link. Gestão de fazendas e análises agronômicas.",
+  icons: [
+    { rel: "icon", url: "/logo-mini.png", sizes: "400x390", type: "image/png" },
+    { rel: "apple-touch-icon", url: "/logo-mini.png" },
+  ],
+  openGraph: {
+    title: "AgroAnalise — Relatórios agronômicos que impressionam",
+    description:
+      "Documente visitas técnicas com fotos e análises, e compartilhe relatórios profissionais com seus clientes em um link.",
+    siteName: "AgroAnalise",
+    images: [{ url: "/logo-full-1x.png", width: 400, height: 275 }],
+  },
 };
 
 const geist = Geist({
@@ -22,7 +36,7 @@ const geist = Geist({
 const THEME_SCRIPT = `
 (function() {
   try {
-    var theme = localStorage.getItem('projeto-novo-theme') || 'system';
+    var theme = localStorage.getItem('agroanalise-theme') || 'system';
     var dark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
     document.documentElement.classList.add(dark ? 'dark' : 'light');
   } catch (e) {}

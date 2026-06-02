@@ -11,7 +11,7 @@ import {
 
 type Theme = "dark" | "light" | "system";
 
-const STORAGE_KEY = "projeto-novo-theme";
+const STORAGE_KEY = "agroanalise-theme";
 
 type ThemeProviderState = {
   theme: Theme;
