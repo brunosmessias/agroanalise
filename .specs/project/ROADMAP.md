@@ -51,3 +51,5 @@
 - Verificação de email
 - 2FA
 - Dashboard com conteúdo real
+- Streaming nas respostas de IA
+- Análise de imagens por IA

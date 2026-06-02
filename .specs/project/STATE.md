@@ -1,7 +1,7 @@
 # AgroAnalise — STATE
 
 **Last Updated:** 2026-06-02
-**Current Work:** Logo oficial integrada em todos os pontos — landing, auth, sidebar, favicon e metadata
+**Current Work:** Integração IA (OpenRouter) para reescrita de textos — descrição de análise, legendas de fotos e bio do perfil
 
 ---
 
@@ -42,6 +42,12 @@
 **Reason:** Step form guia melhor o fluxo sequencial de preenchimento
 **Trade-off:** Não é possível pular para uma seção arbitrária sem completar a anterior
 **Impact:** Stepper no topo da página, navegação Voltar/Próximo/Salvar, tela de revisão final com link público
+
+### AD-007: OpenRouter + Gemma 3 27B para reescrita de IA (2026-06-02)
+**Decision:** Usar OpenRouter com modelo gratuito `google/gemma-3-27b-it:free` para reescrita de textos
+**Reason:** Gratuito, boa qualidade para PT-BR, 262K contexto, API compatível com OpenAI SDK
+**Trade-off:** Rate limit de 20 req/min, 200 req/dia; dependência de serviço externo
+**Impact:** API route `/api/ai/rewrite`, componente `<AiRewriteButton>` reutilizável, env var OPENROUTER_API_KEY
 
 ---
 
@@ -85,5 +91,5 @@
 - [x] Step form de análise (Detalhes → Fotos → Concluído)
 - [x] Unificação de terminologia (Análise / Visita Técnica)
 - [ ] Geração de PDF
-- [ ] Integração IA para melhoria de textos
+- [x] Integração IA para melhoria de textos
 - [x] Dashboard com métricas

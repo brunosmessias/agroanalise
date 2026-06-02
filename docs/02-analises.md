@@ -31,12 +31,12 @@ O agrônomo preenche as informações básicas:
 |-------|-------------|---------|
 | 📛 Título | ✅ Sim | Nome da análise (ex: "Análise de solo - Talhão Norte") |
 | 📅 Data da visita | ✅ Sim | Quando a visita foi realizada |
-| 📝 Descrição | ❌ Não | Texto geral sobre a visita |
+| 📝 Descrição | ❌ Não | Texto geral sobre a visita — pode ser melhorado com IA |
 
 #### Passo 2 — Fotos
 O agrônomo adiciona as fotos da visita:
 - **Upload** de uma ou mais fotos (arrastar ou clicar)
-- **Descrição** obrigatória para cada foto
+- **Descrição** obrigatória para cada foto — botão "Melhorar com IA" reescreve com linguagem profissional
 - **Ordenação** das fotos (arrastar para reordenar)
 - **Remoção** individual de fotos
 
@@ -95,3 +95,30 @@ Não. O link público é fixo — baseado no slug gerado na criação. Edições
 
 **Posso ter duas análises com o mesmo título para o mesmo cliente?**
 Sim. O título não é único. A diferenciação é feita pelo ID e data da visita.
+
+## ✨ Melhoria de Textos com IA
+
+O AgroAnalise inclui um assistente de IA que reescreve textos de forma profissional e técnica. O recurso está disponível em três pontos:
+
+| Campo | Onde encontrar |
+|-------|---------------|
+| 📝 Descrição da análise | Passo 1 (Detalhes) — botão \"Melhorar com IA\" ao lado do campo |
+| 📸 Descrição de cada foto | Passo 2 (Fotos) — botão abaixo de cada legenda |
+| 👤 Bio do perfil | Página Meu Perfil — botão ao lado do campo \"Sobre você\" |
+
+### Como funciona
+
+1. O agrônomo escreve suas observações normalmente
+2. Clica em **\"Melhorar com IA\"**
+3. A IA reescreve o texto com linguagem profissional, mantendo todas as informações técnicas
+4. O agrônomo pode **desfazer** e voltar ao texto original a qualquer momento
+
+### Regras da IA
+
+| Regra | Detalhe |
+|-------|---------|
+| 🤖 Modelo | Google Gemma 3 27B (via OpenRouter) |
+| 💰 Custo | Gratuito |
+| 📝 Mínimo de caracteres | 10 caracteres para ativar |
+| ↩️ Desfazer | Sempre disponível após reescrita |
+| 🔒 Privacidade | Texto enviado apenas para reescrita; não armazenado pela IA |

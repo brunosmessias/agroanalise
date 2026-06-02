@@ -1,7 +1,7 @@
 # AgroAnalise — Project Control
 
 **Última atualização:** 2026-06-02
-**Status:** Fase 2 e 3 parciais concluídas — CRUD + página pública + dashboard implementados
+**Status:** Fase 4 (IA) concluída. Pendente: PDF, testes E2E e refinamentos
 
 ---
 
@@ -33,11 +33,15 @@
 - [x] README.md
 - [x] Documentação didática (visão geral + 5 módulos)
 
+- [x] Integração IA para melhoria de textos (OpenRouter + Google Gemma 3 27B gratuito)
+- [x] Componente AiRewriteButton reutilizável
+- [x] Botão IA na descrição da análise, legendas de fotos e bio do perfil
+- [x] Landing page atualizada com seção de IA
+
 ### 🔲 Pendente (Fase 3 — Visualização)
 - [ ] Geração de PDF da análise
 
-### 🔲 Pendente (Fase 4 — IA e Polish)
-- [ ] Integração IA para melhoria de textos
+### 🔲 Pendente (Fase 5 — Polish)
 - [ ] Refinamentos visuais
 - [ ] Testes E2E
 
@@ -75,4 +79,5 @@
 | `/a/[slug]` | Página pública da análise | Público |
 | `/api/auth/[...all]` | Better Auth | Público |
 | `/api/trpc/[trpc]` | tRPC API | Misto |
+| `/api/ai/rewrite` | Reescrita de texto com IA | Autenticado |
 | `/api/storage/[...path]` | Proxy MinIO | Autenticado |

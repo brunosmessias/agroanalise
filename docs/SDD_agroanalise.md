@@ -77,7 +77,7 @@ Data: 2026-06-02
 - **F03:** CRUD de clientes (nome, documento, email, telefone, endereço, cidade, estado, observações, foto) com listagem, busca e criação via modal — ✅ *implementado*
 - **F04:** CRUD de análises por cliente — criar análise com step form de 3 passos (Detalhes → Fotos → Revisão) — ✅ *implementado*
 - **F05:** Upload de fotos para MinIO — múltiplas fotos por análise, com preview, descrição e remoção — ✅ *implementado*
-- **F06:** IA para melhoria de texto — campo "melhorar com IA" em cada descrição de foto e na descrição geral da análise — 🔲 *pendente*
+- **F06:** IA para melhoria de texto — campo "melhorar com IA" em cada descrição de foto, na descrição geral da análise e na bio do perfil — ✅ *implementado*
 - **F07:** Visualização pública da análise — URL única (`/a/{slug}`) com galeria, lightbox, design responsivo — ✅ *implementado*
 - **F08:** Geração de PDF da análise — botão para exportar análise em PDF com layout profissional — 🔲 *pendente*
 - **F09:** Dashboard — visão geral com total de clientes, análises, fotos, análises do mês, análises recentes — ✅ *implementado*
@@ -97,7 +97,7 @@ Data: 2026-06-02
   Agrônomo abre análise → clica em "Compartilhar" → copia link único → envia ao cliente via WhatsApp/email → cliente acessa link → vê apresentação visual profissional com fotos e descrições → pode ampliar fotos no lightbox → pode baixar PDF (futuro).
 
 - **Fluxo 4 — Upload de fotos:**
-  Agrônomo cria/edita análise (passo 2) → clica em adicionar foto → seleciona arquivo(s) do dispositivo → imagem é enviada direto ao MinIO via presigned URL → preview aparece na tela → agrônomo adiciona descrição textual → pode usar IA para melhorar (futuro) → reordena ou remove fotos → avança para revisão.
+  Agrônomo cria/edita análise (passo 2) → clica em adicionar foto → seleciona arquivo(s) do dispositivo → imagem é enviada direto ao MinIO via presigned URL → preview aparece na tela → agrônomo adiciona descrição textual → pode usar IA para melhorar a descrição → reordena ou remove fotos → avança para revisão.
 
 ### 2.3 Regras de negócio-chave
 - **RN01:** Cada análise possui um slug único gerado automaticamente (UUID) para URL pública.
@@ -105,7 +105,7 @@ Data: 2026-06-02
 - **RN03:** Cada foto de uma análise deve ter um texto descritivo associado.
 - **RN04:** O limite máximo de fotos por análise é de 20 imagens.
 - **RN05:** O tamanho máximo por imagem é de 10MB, formatos aceitos: JPG, PNG, WebP.
-- **RN06:** A funcionalidade de IA pode ser usada opcionalmente em cada campo de texto (descrição geral da análise e descrição de cada foto).
+- **RN06:** A funcionalidade de IA está disponível na descrição geral da análise, nas descrições de cada foto e na bio do perfil do agrônomo. O agrônomo pode desfazer a reescrita e voltar ao texto original.
 - **RN07:** O PDF gerado deve seguir o mesmo layout da visualização pública.
 - **RN08:** Um cliente pode ter múltiplas análises associadas.
 - **RN09:** A análise só fica disponível publicamente após ser salva (não em rascunho — MVP sem conceito de rascunho).
@@ -156,7 +156,7 @@ Data: 2026-06-02
 - **Armazenamento:** MinIO (S3-compatible) para imagens
 - **Formulários:** React Hook Form v7 + Zod v4
 - **Geração PDF:** A definir (Fase 3)
-- **IA:** API externa (OpenAI ou similar) para melhoria de textos
+- **IA:** OpenRouter API — modelo `google/gemma-3-27b-it:free` (gratuito, 262K contexto) via API route `/api/ai/rewrite`
 - **Testes:** Vitest (unit/integration) + Playwright (E2E)
 - **Qualidade:** ESLint + TypeScript strict
 - **Package manager:** pnpm
@@ -169,7 +169,7 @@ Data: 2026-06-02
 - **ADR-005:** Contrato único de erro (herdado).
 - **ADR-006:** Imagens armazenadas no MinIO com upload direto via presigned URLs. Não armazenar imagens no banco.
 - **ADR-007:** Página pública de análise é uma rota separada sem autenticação, com slug UUID na URL (`/a/{slug}`).
-- **ADR-008:** IA de melhoria de texto é uma chamada tRPC que consome API externa. O campo de texto original é preservado; o texto melhorado substitui apenas se o usuário confirmar.
+- **ADR-008:** IA de melhoria de texto via OpenRouter API (modelo gratuito `google/gemma-3-27b-it:free`). API route Next.js (`/api/ai/rewrite`) no server-side, nunca expõe a API key ao client. Componente `<AiRewriteButton>` reutilizável em qualquer campo de texto. O campo original é preservado em estado para permitir desfazer.
 - **ADR-009:** PDF gerado server-side, com layout consistente com a visualização pública. Estratégia: renderizar HTML + converter para PDF.
 - **ADR-010:** Step form de 3 passos para criação de análise (Detalhes → Fotos → Revisão). Guia o fluxo sequencial e impede pulos.
 - **ADR-011:** Onboarding obrigatório no primeiro acesso. O dashboard layout verifica `onboardingCompleted` e redireciona para `/onboarding` se falso.
@@ -192,6 +192,7 @@ src/
 │   ├── a/[slug]/            # Visualização pública da análise
 │   ├── api/
 │   │   ├── auth/[...all]/   # Better Auth
+│   │   ├── ai/rewrite/      # Reescrita de texto com IA (OpenRouter)
 │   │   ├── trpc/[trpc]/     # tRPC API
 │   │   └── storage/[...path] # Proxy MinIO
 │   └── page.tsx             # Landing page
@@ -200,6 +201,7 @@ src/
 │   ├── layout/              # AppSidebar, Header
 │   ├── auth/                # LoginForm, RegisterForm
 │   ├── clients/             # Componentes de clientes
+│   ├── ai/                  # AiRewriteButton
 │   └── landing/             # Componentes da landing page
 ├── server/
 │   ├── api/routers/         # tRPC routers (client, analysis, photo, dashboard, user)
@@ -245,7 +247,7 @@ src/
 - Upload de fotos com drag-and-drop + preview
 
 ### 5.5 Página pública de análise
-- **Objetivo:** Apresentação visual premium da análise para o cliente do agricultor
+- **Objetivo:** Apresentação visual premium da análise para o cliente do agrônomo
 - **Layout:**
   - Hero com imagem de destaque (primeira foto)
   - Título da análise + nome do cliente + data da visita
@@ -338,7 +340,7 @@ src/
 - **Fase 1 — Fundação:** ✅ Clone da base, configuração MinIO, schema do banco, migrations
 - **Fase 2 — CRUD Core:** ✅ Clientes (CRUD completo) + Análises (CRUD + step form) + Upload de fotos + Perfil da fazenda
 - **Fase 3 — Visualização:** 🔲 Geração de PDF (página pública já implementada)
-- **Fase 4 — IA e Polish:** 🔲 Integração IA para melhoria de textos + refinamentos visuais + testes
+- **Fase 4 — IA e Polish:** ✅ IA para melhoria de textos implementada. 🔲 Refinamentos visuais + testes
 
 ### 8.2 Sequência de implementação
 1. ✅ Clone da base + renomear projeto
@@ -354,7 +356,7 @@ src/
 11. ✅ Landing page
 12. ✅ Perfil da fazenda do cliente
 13. 🔲 Geração de PDF
-14. 🔲 Integração com IA para melhoria de textos
+14. ✅ Integração com IA para melhoria de textos (OpenRouter + Gemma 3 27B)
 15. 🔲 Testes E2E e refinamentos
 
 ---
@@ -404,15 +406,15 @@ src/
 ### 11.1 Riscos
 - **R01:** MinIO requer infraestrutura separada — pode complicar deploy inicial. *Mitigação:* usar serviço S3-compatible gerenciado (Cloudflare R2 ou similar) como alternativa.
 - **R02:** Geração de PDF server-side pode ser lenta para análises com muitas fotos. *Mitigação:* gerar PDF de forma assíncrona e cache do resultado.
-- **R03:** Custos de API de IA podem crescer com uso frequente. *Mitigação:* limitar uso e monitorar consumo.
+- **R03:** Rate limit do OpenRouter (20 req/min, 200 req/dia no plano free). *Mitigação:* monitorar uso; upgrade para plano pago se necessário.
 
 ### 11.2 Trade-offs
 - **T01:** Single-user na v1 simplifica implementação mas limita escalabilidade. Trade-off aceito para MVP rápido.
 - **T02:** MinIO vs S3 gerenciado — MinIO oferece controle total mas exige manutenção. Trade-off aceito por flexibilidade e custo em self-hosting.
+- **T03:** OpenRouter plano gratuito — custo zero mas com rate limits. Trade-off aceito para MVP; modelo pode ser trocado facilmente pela API compatível.
 
 ### 11.3 Decisões pendentes
 - **D01:** Biblioteca de geração de PDF: Puppeteer (headless browser) vs @react-pdf/renderer (declarativo) — decidir na Fase 3.
-- **D02:** Provedor de IA: OpenAI GPT-4o-mini vs modelo local (Ollama) vs outro — decidir na Fase 4.
 - **D03:** Deploy target: VPS, Vercel + R2, ou outro — decidir antes do deploy.
 
 ---
@@ -426,7 +428,7 @@ src/
 | F03 Clientes | `src/app/(dashboard)/clients/`, `src/server/api/routers/client.ts` | Integration + E2E | ✅ Implementado |
 | F04 Análises | `src/app/(dashboard)/clients/[id]/analyses/`, `src/server/api/routers/analysis.ts` | Integration + E2E | ✅ Implementado |
 | F05 Upload fotos | `src/server/storage/minio.ts`, `src/server/api/routers/photo.ts` | Integration | ✅ Implementado |
-| F06 IA textos | `src/server/api/routers/` (a criar) | Unit | 🔲 Pendente |
+| F06 IA textos | `src/app/api/ai/rewrite/route.ts`, `src/components/ai/ai-rewrite-button.tsx` | Unit | ✅ Implementado |
 | F07 Página pública | `src/app/a/[slug]/page.tsx` | E2E | ✅ Implementado |
 | F08 PDF | `src/server/` (a criar) | Integration | 🔲 Pendente |
 | F09 Dashboard | `src/app/(dashboard)/dashboard/`, `src/server/api/routers/dashboard.ts` | Visual | ✅ Implementado |

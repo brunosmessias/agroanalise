@@ -13,7 +13,7 @@ Pense nisso como o **Canva para relatórios agronômicos** — em vez de montar 
 1. 🧑‍🌾 O **agrônomo** faz o cadastro e configura seu perfil (nome, telefone, empresa)
 2. 👨‍💼 Ele **cadastra seus clientes** (nome, documento, endereço, contato)
 3. 🔬 Após uma visita técnica, ele **cria uma análise** — com título, data e fotos do local
-4. 📸 Para cada foto, ele adiciona uma **descrição** do que foi observado
+4. 📸 Para cada foto, ele adiciona uma **descrição** do que foi observado — pode usar **IA para reescrever** com linguagem profissional
 5. 🔗 Ao salvar, o sistema gera um **link único** (ex: `agroanalise.com/a/abc123`)
 6. 📱 Ele **compartilha o link** com o cliente — que vê uma página profissional com todas as informações
 7. 📊 No dashboard, o agrônomo acompanha **métricas** (total de clientes, análises, visitas recentes)
@@ -23,7 +23,7 @@ Pense nisso como o **Canva para relatórios agronômicos** — em vez de montar 
 | Perfil | O que faz no sistema |
 |--------|---------------------|
 | 🧑‍🌾 **Agrônomo** | Gerencia clientes, cria análises, faz upload de fotos, compartilha links, acompanha métricas |
-| 👨‍💼 **Cliente** (agricultor) | Recebe o link e visualiza a análise no navegador — sem precisar de cadastro |
+| 👨‍💼 **Cliente** (agrônomo) | Recebe o link e visualiza a análise no navegador — sem precisar de cadastro |
 
 > O cliente **não precisa criar conta**. Ele apenas acessa o link compartilhado pelo agrônomo.
 
@@ -54,7 +54,7 @@ Pense nisso como o **Canva para relatórios agronômicos** — em vez de montar 
 |---------|---------------|
 | 🗄️ PostgreSQL | Banco de dados principal |
 | 📦 MinIO | Armazenamento de imagens (compatível com Amazon S3) |
-| 🤖 OpenAI | Melhoria de textos com IA (futura feature) |
+| 🤖 OpenRouter | Reescrita de textos com IA (modelo gratuito Google Gemma 3 27B) |
 
 ## Diagrama do sistema
 
@@ -67,12 +67,14 @@ flowchart TB
         Analises["🔬 Criação de Análises"]
         Upload["📸 Upload de Fotos"]
         Perfil["⚙️ Meu Perfil"]
+        IA["🤖 IA para Textos"]
     end
 
     subgraph Sistema["🖥️ AgroAnalise"]
         DB[("🗄️ PostgreSQL")]
         Storage[("📦 MinIO")]
         PublicPage["🌐 Página Pública"]
+        OpenRouter["🤖 OpenRouter API"]
     end
 
     subgraph Cliente["👨‍💼 Cliente"]
@@ -85,9 +87,12 @@ flowchart TB
     Clientes --> Analises
     Analises --> Upload
     Upload --> Storage
+    Analises --> IA
+    IA --> OpenRouter
     Analises --> PublicPage
     PublicPage --> Browser
     Dashboard --> Perfil
+    Perfil --> IA
     Clientes --> DB
     Analises --> DB
 ```

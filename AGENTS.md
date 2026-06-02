@@ -34,6 +34,7 @@ src/
 │   │       └── page.tsx
 │   ├── api/
 │   │   ├── auth/[...all]/route.ts
+│   │   ├── ai/rewrite/route.ts   # Reescrita de textos com IA (OpenRouter)
 │   │   └── trpc/[trpc]/route.ts
 │   ├── layout.tsx       # Root layout (ThemeProvider + TooltipProvider)
 │   └── not-found.tsx
@@ -41,6 +42,7 @@ src/
 │   ├── ui/              # shadcn/ui components (não editar diretamente)
 │   ├── layout/          # AppSidebar, Header
 │   ├── auth/            # LoginForm, RegisterForm
+│   ├── ai/              # AiRewriteButton (reescrita IA)
 │   ├── theme-provider.tsx  # ThemeProvider + useTheme hook
 │   ├── theme-switch.tsx    # Dropdown Claro/Escuro/Sistema
 │   ├── search.tsx          # Botão de busca com ⌘K
@@ -200,6 +202,7 @@ Todo componente de listagem/conteúdo deve ter:
 ```env
 BETTER_AUTH_SECRET=     # Obrigatório em produção
 DATABASE_URL=           # PostgreSQL connection string
+OPENROUTER_API_KEY=     # OpenRouter API key (IA para reescrita de textos)
 ```
 
 ## Principais dependências
