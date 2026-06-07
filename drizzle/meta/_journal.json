@@ -15,6 +15,13 @@
       "when": 1780422401981,
       "tag": "0001_early_shiver_man",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1780855023393,
+      "tag": "0002_majestic_sir_ram",
+      "breakpoints": true
     }
   ]
 }
