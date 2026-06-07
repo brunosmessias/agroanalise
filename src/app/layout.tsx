@@ -15,10 +15,23 @@ export const metadata: Metadata = {
   },
   description:
     "Documente visitas técnicas com fotos e análises, e compartilhe relatórios profissionais com seus clientes em um link. Gestão de fazendas e análises agronômicas.",
-  icons: [
-    { rel: "icon", url: "/logo-mini.png", sizes: "400x390", type: "image/png" },
-    { rel: "apple-touch-icon", url: "/logo-mini.png" },
-  ],
+  manifest: "/manifest.webmanifest",
+  themeColor: "#18181b",
+  applicationName: "AgroAnalise",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "AgroAnalise",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  icons: {
+    icon: [
+      { url: "/logo-mini.png", sizes: "400x390", type: "image/png" },
+    ],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
   openGraph: {
     title: "AgroAnalise — Relatórios agronômicos que impressionam",
     description:
