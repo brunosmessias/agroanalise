@@ -35,6 +35,8 @@ src/
 │   ├── api/
 │   │   ├── auth/[...all]/route.ts
 │   │   ├── ai/rewrite/route.ts   # Reescrita de textos com IA (OpenRouter)
+│   │   ├── upload/route.ts       # Upload de imagens com otimização Sharp
+│   │   ├── storage/[...path]/route.ts # Proxy de imagens do MinIO
 │   │   └── trpc/[trpc]/route.ts
 │   ├── layout.tsx       # Root layout (ThemeProvider + TooltipProvider)
 │   └── not-found.tsx
@@ -56,7 +58,14 @@ src/
 │   │   ├── trpc.ts      # tRPC context + procedures
 │   │   └── routers/
 │   │       ├── user.ts
-│   │       └── permissions.ts
+│   │       ├── permissions.ts
+│   │       ├── photo.ts
+│   │       ├── analysis.ts
+│   │       ├── client.ts
+│   │       └── dashboard.ts
+│   ├── storage/
+│   │   ├── minio.ts              # MinIO client + presigned URLs
+│   │   └── image-processing.ts   # Sharp: optimize, thumbnail, WebP
 │   ├── better-auth/
 │   │   ├── config.ts    # Better Auth config + admin plugin
 │   │   ├── client.ts    # Auth client (browser)
@@ -122,6 +131,16 @@ src/
 - Comandos: `pnpm db:generate`, `pnpm db:migrate`, `pnpm db:studio`
 - Tabela prefix: sem prefixo (diferente da base T3)
 - Drizzle queries em routers tRPC
+
+### Upload de imagens
+- Upload via `POST /api/upload` (server-side processing com Sharp)
+- Não usar presigned URLs — imagens são processadas antes do armazenamento
+- Otimização automática: WebP, resize max 2048px, quality 80%
+- Miniaturas geradas automaticamente (300px, quality 70%)
+- Miniaturas de avatar são quadradas (300x300 cover)
+- Path convención: `_thumb` suffix no nome do arquivo
+- Storage proxy: `/api/storage/[...path]` serve imagens do MinIO
+- Migration script: `npx tsx scripts/optimize-existing-images.ts`
 
 ## Comandos
 
@@ -216,6 +235,8 @@ OPENROUTER_API_KEY=     # OpenRouter API key (IA para reescrita de textos)
 - `sonner` - Toast notifications
 - `lucide-react` - Icons
 - `class-variance-authority` - Component variants (via shadcn)
+- `sharp` - Image processing (resize, WebP conversion, thumbnails)
+- `dotenv` - Environment variable loading for scripts
 
 SEMPRE USAR A SKILL 'tlc-spec-driven' PARA QUALQUER ALTERAÇÃO OU ADIÇÃO NO CODIGO
 
