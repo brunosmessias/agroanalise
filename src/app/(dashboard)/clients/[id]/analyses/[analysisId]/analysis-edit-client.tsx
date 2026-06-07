@@ -59,6 +59,7 @@ interface AnalysisEditPageProps {
 interface PhotoWithPreview {
   id?: string;
   imageUrl: string;
+  thumbnailUrl?: string | null;
   description: string;
   order: number;
   file?: File;
@@ -119,6 +120,7 @@ export function AnalysisEditPage({ client, analysis }: AnalysisEditPageProps) {
         existingPhotos.map((p) => ({
           id: p.id,
           imageUrl: p.imageUrl,
+          thumbnailUrl: p.thumbnailUrl,
           description: p.description,
           order: p.order,
           isExisting: true,
@@ -138,7 +140,6 @@ export function AnalysisEditPage({ client, analysis }: AnalysisEditPageProps) {
     },
   });
 
-  const getUploadUrlMutation = api.photos.getUploadUrl.useMutation();
   const createPhotoMutation = api.photos.create.useMutation({
     onSuccess: async () => {
       await utils.photos.listByAnalysis.invalidate({
@@ -158,22 +159,27 @@ export function AnalysisEditPage({ client, analysis }: AnalysisEditPageProps) {
   const uploadOnePhoto = useCallback(
     async (file: File, photoIndex: number, baseOrder: number) => {
       try {
-        const { uploadUrl, objectName } =
-          await getUploadUrlMutation.mutateAsync({
-            fileName: file.name,
-            contentType: file.type,
-          });
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("purpose", "analysis");
 
-        const publicUrl = `${window.location.origin}/api/storage/${objectName}`;
-
-        await fetch(uploadUrl, {
-          method: "PUT",
-          body: file,
-          headers: { "Content-Type": file.type },
+        const uploadResponse = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
         });
 
+        if (!uploadResponse.ok) {
+          throw new Error("Upload failed");
+        }
+
+        const uploadData = (await uploadResponse.json()) as {
+          url: string;
+          thumbnailUrl: string | null;
+        };
+
         const created = await createPhotoMutation.mutateAsync({
-          imageUrl: publicUrl,
+          imageUrl: uploadData.url,
+          thumbnailUrl: uploadData.thumbnailUrl,
           description: "",
           order: baseOrder + photoIndex + 1,
           analysisId: analysis.id,
@@ -185,7 +191,8 @@ export function AnalysisEditPage({ client, analysis }: AnalysisEditPageProps) {
               ? {
                   ...p,
                   id: created?.id,
-                  imageUrl: publicUrl,
+                  imageUrl: uploadData.url,
+                  thumbnailUrl: uploadData.thumbnailUrl,
                   isUploading: false,
                   isExisting: true,
                   file: undefined,
@@ -204,7 +211,7 @@ export function AnalysisEditPage({ client, analysis }: AnalysisEditPageProps) {
         );
       }
     },
-    [analysis.id, getUploadUrlMutation, createPhotoMutation],
+    [analysis.id, createPhotoMutation],
   );
 
   const handleFileSelect = useCallback(

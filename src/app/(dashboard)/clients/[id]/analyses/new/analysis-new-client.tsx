@@ -56,6 +56,7 @@ interface AnalysisNewPageProps {
 interface PhotoWithPreview {
   id?: string;
   imageUrl: string;
+  thumbnailUrl?: string | null;
   description: string;
   order: number;
   file?: File;
@@ -136,6 +137,7 @@ export function AnalysisNewPage({ client }: AnalysisNewPageProps) {
         existingPhotos.map((p) => ({
           id: p.id,
           imageUrl: p.imageUrl,
+          thumbnailUrl: p.thumbnailUrl,
           description: p.description,
           order: p.order,
           isExisting: true,
@@ -144,7 +146,6 @@ export function AnalysisNewPage({ client }: AnalysisNewPageProps) {
     }
   }, [existingPhotos, createdAnalysis]);
 
-  const getUploadUrlMutation = api.photos.getUploadUrl.useMutation();
   const createPhotoMutation = api.photos.create.useMutation({
     onSuccess: async () => {
       if (!analysisId) return;
@@ -163,22 +164,27 @@ export function AnalysisNewPage({ client }: AnalysisNewPageProps) {
     async (file: File, photoIndex: number, baseOrder: number) => {
       if (!analysisId) return;
       try {
-        const { uploadUrl, objectName } =
-          await getUploadUrlMutation.mutateAsync({
-            fileName: file.name,
-            contentType: file.type,
-          });
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("purpose", "analysis");
 
-        const publicUrl = `${window.location.origin}/api/storage/${objectName}`;
-
-        await fetch(uploadUrl, {
-          method: "PUT",
-          body: file,
-          headers: { "Content-Type": file.type },
+        const uploadResponse = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
         });
 
+        if (!uploadResponse.ok) {
+          throw new Error("Upload failed");
+        }
+
+        const uploadData = (await uploadResponse.json()) as {
+          url: string;
+          thumbnailUrl: string | null;
+        };
+
         const created = await createPhotoMutation.mutateAsync({
-          imageUrl: publicUrl,
+          imageUrl: uploadData.url,
+          thumbnailUrl: uploadData.thumbnailUrl,
           description: "",
           order: baseOrder + photoIndex + 1,
           analysisId,
@@ -190,7 +196,8 @@ export function AnalysisNewPage({ client }: AnalysisNewPageProps) {
               ? {
                   ...p,
                   id: created?.id,
-                  imageUrl: publicUrl,
+                  imageUrl: uploadData.url,
+                  thumbnailUrl: uploadData.thumbnailUrl,
                   isUploading: false,
                   isExisting: true,
                   file: undefined,
@@ -209,7 +216,7 @@ export function AnalysisNewPage({ client }: AnalysisNewPageProps) {
         );
       }
     },
-    [analysisId, getUploadUrlMutation, createPhotoMutation],
+    [analysisId, createPhotoMutation],
   );
 
   const handleFileSelect = useCallback(
