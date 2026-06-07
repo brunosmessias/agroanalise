@@ -1,0 +1,16 @@
+node_modules
+.next
+.git
+.env
+.env*.local
+.idea
+.DS_Store
+coverage
+.vercel
+*.tsbuildinfo
+pnpm-workspace.yaml
+docs
+.specs
+.claude
+AGENTS.md
+README.md
