@@ -2,19 +2,14 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { analysisPhoto } from "~/server/db/schema";
-import { getPresignedUploadUrl, deleteObject } from "~/server/storage/minio";
+import { deleteObject } from "~/server/storage/minio";
 
 const analysisIdSchema = z.object({ analysisId: z.string() });
 const idSchema = z.object({ id: z.string() });
 
-const uploadUrlSchema = z.object({
-  fileName: z.string(),
-  contentType: z.string(),
-  purpose: z.enum(["analysis", "avatar"]).default("analysis"),
-});
-
 const createPhotoSchema = z.object({
   imageUrl: z.string(),
+  thumbnailUrl: z.string().nullable().optional(),
   description: z.string(),
   order: z.number(),
   analysisId: z.string(),
@@ -24,6 +19,11 @@ const updatePhotoSchema = z.object({
   id: z.string(),
   description: z.string(),
 });
+
+function extractObjectName(url: string): string {
+  const parts = url.split("/api/storage/");
+  return parts.length > 1 ? parts[1]! : url.split("/").slice(-2).join("/");
+}
 
 export const photoRouter = createTRPCRouter({
   listByAnalysis: protectedProcedure
@@ -36,15 +36,6 @@ export const photoRouter = createTRPCRouter({
         .orderBy(analysisPhoto.order);
     }),
 
-  getUploadUrl: protectedProcedure
-    .input(uploadUrlSchema)
-    .mutation(async ({ ctx, input }) => {
-      const folder = input.purpose === "avatar" ? "avatars" : "photos";
-      const objectName = `${folder}/${ctx.session.user.id}/${crypto.randomUUID()}-${input.fileName}`;
-      const uploadUrl = await getPresignedUploadUrl(objectName, input.contentType);
-      return { uploadUrl, objectName };
-    }),
-
   create: protectedProcedure
     .input(createPhotoSchema)
     .mutation(async ({ ctx, input }) => {
@@ -52,6 +43,7 @@ export const photoRouter = createTRPCRouter({
         .insert(analysisPhoto)
         .values({
           imageUrl: input.imageUrl,
+          thumbnailUrl: input.thumbnailUrl ?? null,
           description: input.description,
           order: input.order,
           analysisId: input.analysisId,
@@ -82,10 +74,19 @@ export const photoRouter = createTRPCRouter({
 
       if (photo) {
         try {
-          const objectName = photo.imageUrl.split("/").slice(-2).join("/");
+          const objectName = extractObjectName(photo.imageUrl);
           await deleteObject(objectName);
         } catch {
           // Log error but still delete from DB
+        }
+
+        if (photo.thumbnailUrl) {
+          try {
+            const thumbObjectName = extractObjectName(photo.thumbnailUrl);
+            await deleteObject(thumbObjectName);
+          } catch {
+            // Log error but still delete from DB
+          }
         }
       }
 
