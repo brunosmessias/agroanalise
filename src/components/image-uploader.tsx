@@ -3,7 +3,6 @@
 import { useRef, useState } from "react";
 import { Camera, Loader2, Trash2, User } from "lucide-react";
 import { toast } from "sonner";
-import { api } from "~/trpc/react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
@@ -46,8 +45,6 @@ export function ImageUploader({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
 
-  const getUploadUrlMutation = api.photos.getUploadUrl.useMutation();
-
   const initials = name
     .split(" ")
     .filter(Boolean)
@@ -74,25 +71,25 @@ export function ImageUploader({
 
     setIsUploading(true);
     try {
-      const { uploadUrl, objectName } = await getUploadUrlMutation.mutateAsync({
-        fileName: file.name,
-        contentType: file.type,
-        purpose,
-      });
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("purpose", purpose);
 
-      const publicUrl = `${window.location.origin}/api/storage/${objectName}`;
-
-      const response = await fetch(uploadUrl, {
-        method: "PUT",
-        body: file,
-        headers: { "Content-Type": file.type },
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
       });
 
       if (!response.ok) {
         throw new Error("Falha no upload");
       }
 
-      onChange(publicUrl);
+      const data = (await response.json()) as {
+        url: string;
+        thumbnailUrl: string | null;
+      };
+
+      onChange(data.url);
       toast.success("Imagem enviada com sucesso!");
     } catch {
       toast.error("Erro ao enviar imagem");
