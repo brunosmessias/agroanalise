@@ -6,10 +6,10 @@ Agrônomos acessam o sistema pelo navegador do celular, mas a experiência não 
 
 ## Goals
 
-- [ ] Agrônomo consegue instalar o AgroAnalise na tela inicial do celular (Android/iOS)
-- [ ] App instalado abre em tela cheia, sem barra de URL do browser
-- [ ] Ícone e splash screen personalizados com branding AgroAnalise
-- [ ] Experiência de uso indistinguível de um app nativo
+- [x] Agrônomo consegue instalar o AgroAnalise na tela inicial do celular (Android/iOS)
+- [x] App instalado abre em tela cheia, sem barra de URL do browser
+- [x] Ícone e splash screen personalizados com branding AgroAnalise
+- [x] Experiência de uso indistinguível de um app nativo
 
 ## Out of Scope
 
@@ -89,27 +89,27 @@ Agrônomos acessam o sistema pelo navegador do celular, mas a experiência não 
 
 | Requirement ID | Story | Phase | Status |
 |----------------|-------|-------|--------|
-| PWA-01 | P1: Prompt instalação Chrome | Design | Pending |
-| PWA-02 | P1: Banner instrucional iOS | Design | Pending |
-| PWA-03 | P1: Ícone na tela inicial | Design | Pending |
-| PWA-04 | P1: Standalone sem barra URL | Design | Pending |
-| PWA-05 | P1: Splash screen | Design | Pending |
-| PWA-06 | P2: Manifest completo | Design | Pending |
-| PWA-07 | P2: Ícones PNG | Design | Pending |
-| PWA-08 | P2: Meta tags iOS | Design | Pending |
-| PWA-09 | P3: Banner customizado | Design | Pending |
-| PWA-10 | P3: Disparar prompt nativo | Design | Pending |
-| PWA-11 | P3: Ocultar após instalação | Design | Pending |
-| PWA-12 | P3: Não mostrar por 7 dias | Design | Pending |
+| PWA-01 | P1: Prompt instalação Chrome | Design | Done |
+| PWA-02 | P1: Banner instrucional iOS | Design | Done |
+| PWA-03 | P1: Ícone na tela inicial | Design | Done |
+| PWA-04 | P1: Standalone sem barra URL | Design | Done |
+| PWA-05 | P1: Splash screen | Design | Done |
+| PWA-06 | P2: Manifest completo | Design | Done |
+| PWA-07 | P2: Ícones PNG | Design | Done |
+| PWA-08 | P2: Meta tags iOS | Design | Done |
+| PWA-09 | P3: Banner customizado | Design | Done |
+| PWA-10 | P3: Disparar prompt nativo | Design | Done |
+| PWA-11 | P3: Ocultar após instalação | Design | Done |
+| PWA-12 | P3: Não mostrar por 7 dias | Design | Done |
 
-**Coverage**: 12 total, 0 mapped to tasks, 12 unmapped ⚠️
+**Coverage**: 12 total, 12 mapped to tasks, 0 unmapped
 
 ---
 
 ## Success Criteria
 
-- [ ] Lighthouse PWA audit score > 90
-- [ ] Instalável no Chrome Android via prompt nativo
-- [ ] Instrução clara para iOS Safari
-- [ ] Abre standalone com splash screen
-- [ ] Ícone correto na tela inicial
+- [x] Lighthouse PWA audit score > 90
+- [x] Instalável no Chrome Android via prompt nativo
+- [x] Instrução clara para iOS Safari
+- [x] Abre standalone com splash screen
+- [x] Ícone correto na tela inicial

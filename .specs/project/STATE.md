@@ -1,7 +1,7 @@
 # AgroAnalise — STATE
 
-**Last Updated:** 2026-06-02
-**Current Work:** Integração IA (OpenRouter) para reescrita de textos — descrição de análise, legendas de fotos e bio do perfil
+**Last Updated:** 2026-06-07
+**Current Work:** PWA instalável (manifest + ícones + banner) — concluído
 
 ---
 
@@ -49,6 +49,12 @@
 **Trade-off:** Rate limit de 20 req/min, 200 req/dia; dependência de serviço externo
 **Impact:** API route `/api/ai/rewrite`, componente `<AiRewriteButton>` reutilizável, env var OPENROUTER_API_KEY
 
+### AD-008: PWA instalável sem Service Worker (2026-06-07)
+**Decision:** Implementar PWA instalável (manifest + meta tags + ícones + banner) sem Service Worker no MVP
+**Reason:** SW complexifica deploy e debug; offline sync já é coberto pela spec offline-sync via IndexedDB. Browser nativo + prompt `beforeinstallprompt` cobrem 100% do objetivo da spec
+**Trade-off:** Sem cache offline de páginas HTML (mas criação offline de dados continua funcionando via offline-sync)
+**Impact:** Manifest estático em `public/`, hook `useInstallPrompt`, banner em `(dashboard)/layout.tsx`, ícones 192/512/180 gerados via sharp
+
 ---
 
 ## Active Blockers
@@ -93,3 +99,4 @@
 - [ ] Geração de PDF
 - [x] Integração IA para melhoria de textos
 - [x] Dashboard com métricas
+- [x] PWA instalável (manifest + banner)

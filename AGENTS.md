@@ -40,11 +40,15 @@ src/
 │   │   └── trpc/[trpc]/route.ts
 │   ├── layout.tsx       # Root layout (ThemeProvider + TooltipProvider)
 │   └── not-found.tsx
+├── public/
+│   ├── manifest.webmanifest  # PWA manifest
+│   └── icons/                # PWA icons (192, 512, apple-touch)
 ├── components/
 │   ├── ui/              # shadcn/ui components (não editar diretamente)
 │   ├── layout/          # AppSidebar, Header
 │   ├── auth/            # LoginForm, RegisterForm
 │   ├── ai/              # AiRewriteButton (reescrita IA)
+│   ├── pwa/             # InstallBanner (banner de instalação PWA)
 │   ├── theme-provider.tsx  # ThemeProvider + useTheme hook
 │   ├── theme-switch.tsx    # Dropdown Claro/Escuro/Sistema
 │   ├── search.tsx          # Botão de busca com ⌘K
@@ -223,6 +227,14 @@ BETTER_AUTH_SECRET=     # Obrigatório em produção
 DATABASE_URL=           # PostgreSQL connection string
 OPENROUTER_API_KEY=     # OpenRouter API key (IA para reescrita de textos)
 ```
+
+## PWA
+
+- Manifest estático em `public/manifest.webmanifest` (display: standalone, start_url: /dashboard)
+- Ícones em `public/icons/` (192, 512, 180) com fundo opaco gerados via `scripts/generate-pwa-icons.mjs`
+- Hook `useInstallPrompt` captura `beforeinstallprompt`, detecta standalone e gerencia dismissal (7 dias em `localStorage`)
+- `InstallBanner` é client component montado no layout do dashboard (não aparece em `/a/[slug]` nem em `(auth)/`)
+- Sem Service Worker no MVP — offline-sync coberto via IndexedDB pela spec offline-sync
 
 ## Principais dependências
 
