@@ -16,6 +16,7 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import { GalleryLightbox } from "./gallery-lightbox";
+import { ExportPdfButton } from "~/components/pdf/export-pdf-button";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -76,6 +77,12 @@ export default async function PublicAnalysisPage({ params }: PageProps) {
             <Leaf className="h-3.5 w-3.5" />
             Relatório Técnico
           </span>
+          <ExportPdfButton
+            slug={slug}
+            label="Baixar PDF"
+            variant="secondary"
+            size="sm"
+          />
         </div>
       </header>
 

@@ -47,6 +47,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { AiRewriteButton } from "~/components/ai/ai-rewrite-button";
+import { ExportPdfButton } from "~/components/pdf/export-pdf-button";
 
 type ClientType = NonNullable<RouterOutputs["clients"]["getById"]>;
 type AnalysisType = NonNullable<RouterOutputs["analyses"]["getById"]>;
@@ -822,6 +823,7 @@ export function AnalysisEditPage({ client, analysis }: AnalysisEditPageProps) {
               <Button variant="outline" asChild>
                 <Link href={`/clients/${client.id}`}>Concluir</Link>
               </Button>
+              <ExportPdfButton slug={analysis.slug} />
               <Button asChild>
                 <Link href={`/a/${analysis.slug}`} target="_blank">
                   <Share2 className="mr-2 h-4 w-4" />
