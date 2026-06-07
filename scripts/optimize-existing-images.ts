@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { db } from "../src/server/db/index";
 import { analysisPhoto } from "../src/server/db/schema";
-import { isNull, isNotNull, sql } from "drizzle-orm";
+import { isNull, sql } from "drizzle-orm";
 import { getMinioClient, MINIO_BUCKET } from "../src/server/storage/minio";
 import {
   optimizeImage,
@@ -43,9 +43,9 @@ async function main() {
       console.log(`  Processing: ${objectName}`);
 
       const objectStream = await client.getObject(MINIO_BUCKET, objectName);
-      const chunks: Buffer[] = [];
+      const chunks: Buffer<ArrayBufferLike>[] = [];
       for await (const chunk of objectStream) {
-        chunks.push(Buffer.from(chunk));
+        chunks.push(Buffer.from(chunk as ArrayBuffer));
       }
       const originalBuffer = Buffer.concat(chunks);
       const originalSize = originalBuffer.length;

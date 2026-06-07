@@ -187,7 +187,7 @@ export function GalleryLightbox({ photos }: { photos: GalleryPhoto[] }) {
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={p.thumbnailUrl || p.imageUrl}
+                    src={p.thumbnailUrl ?? p.imageUrl}
                     alt=""
                     className="h-full w-full object-cover"
                   />
