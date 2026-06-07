@@ -581,7 +581,7 @@ export function AnalysisNewPage({ client }: AnalysisNewPageProps) {
                     <div className="bg-muted relative aspect-video cursor-pointer overflow-hidden">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={photo.imageUrl}
+                        src={photo.thumbnailUrl || photo.imageUrl}
                         alt={photo.description || `Foto ${index + 1}`}
                         onClick={() => openLightbox(index)}
                         className="h-full w-full object-cover transition-transform group-hover:scale-105"
