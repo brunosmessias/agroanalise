@@ -4,6 +4,7 @@ import { getSession } from "~/server/better-auth/server";
 import { api } from "~/trpc/server";
 import { AppSidebar } from "~/components/layout/app-sidebar";
 import { Header } from "~/components/layout/header";
+import { InstallBanner } from "~/components/pwa/install-banner";
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 
 export default async function DashboardLayout({
@@ -34,7 +35,10 @@ export default async function DashboardLayout({
       />
       <SidebarInset>
         <Header />
-        <main className="px-4 py-6">{children}</main>
+        <main className="px-4 py-6">
+          <InstallBanner />
+          {children}
+        </main>
       </SidebarInset>
     </SidebarProvider>
   );
