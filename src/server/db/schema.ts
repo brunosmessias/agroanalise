@@ -119,6 +119,7 @@ export const analysisPhoto = pgTable("analysis_photo", {
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   imageUrl: text("image_url").notNull(),
+  thumbnailUrl: text("thumbnail_url"),
   description: text("description").notNull(),
   order: integer("order").notNull().default(0),
   analysisId: text("analysis_id")
