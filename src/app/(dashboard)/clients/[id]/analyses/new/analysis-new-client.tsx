@@ -2,11 +2,15 @@
 
 import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { api, type RouterOutputs } from "~/trpc/react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
+import { useOfflineAnalysis } from "~/hooks/use-offline-analysis";
+import { useSyncStatus } from "~/hooks/use-sync-status";
+import type { PhotoBlob } from "~/lib/offline/sync-queue";
 import {
   Card,
   CardContent,
@@ -43,8 +47,10 @@ import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
+  CloudOff,
 } from "lucide-react";
 import { toast } from "sonner";
+import { AiRewriteButton } from "~/components/ai/ai-rewrite-button";
 
 type ClientType = NonNullable<RouterOutputs["clients"]["getById"]>;
 type AnalysisType = NonNullable<RouterOutputs["analyses"]["getById"]>;
@@ -63,6 +69,13 @@ interface PhotoWithPreview {
   isUploading?: boolean;
   isExisting?: boolean;
   uploadError?: boolean;
+}
+
+interface LocalPhotoPreview {
+  key: string;
+  file: File;
+  previewUrl: string;
+  description: string;
 }
 
 const PHOTO_SAVE_DEBOUNCE_MS = 800;
@@ -92,7 +105,11 @@ type StepId = (typeof STEPS)[number]["id"];
 
 export function AnalysisNewPage({ client }: AnalysisNewPageProps) {
   const utils = api.useUtils();
+  const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const stepOneFileInputRef = useRef<HTMLInputElement>(null);
+  const { isOnline } = useSyncStatus();
+  const { isSaving, saveAnalysis } = useOfflineAnalysis();
 
   const [currentStep, setCurrentStep] = useState<StepId>(1);
   const [title, setTitle] = useState("");
@@ -104,6 +121,7 @@ export function AnalysisNewPage({ client }: AnalysisNewPageProps) {
     null,
   );
   const [photos, setPhotos] = useState<PhotoWithPreview[]>([]);
+  const [localPhotos, setLocalPhotos] = useState<LocalPhotoPreview[]>([]);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [pendingSaves, setPendingSaves] = useState<Set<string>>(new Set());
 
@@ -318,16 +336,79 @@ export function AnalysisNewPage({ client }: AnalysisNewPageProps) {
     [photos, savePhotoDescription],
   );
 
-  const handleCreate = () => {
+  const handleCreate = useCallback(async () => {
     if (title.trim().length < 2) return;
     if (!visitDate) return;
+
+    const pendingPhotoBlobs: PhotoBlob[] = localPhotos.map((p) => ({
+      blob: p.file,
+      mime: p.file.type || "image/jpeg",
+      fileName: p.file.name,
+      description: p.description,
+    }));
+
+    if (!isOnline) {
+      try {
+        await saveAnalysis({
+          clientId: client.id,
+          title: title.trim(),
+          visitDate,
+          description: description.trim(),
+          photos: pendingPhotoBlobs,
+        });
+        localPhotos.forEach((p) => URL.revokeObjectURL(p.previewUrl));
+        setLocalPhotos([]);
+        router.push(`/clients/${client.id}`);
+      } catch {
+        // toast handled in hook
+      }
+      return;
+    }
+
     createMutation.mutate({
       title: title.trim(),
       description: description.trim() || undefined,
       visitDate,
       clientId: client.id,
     });
-  };
+  }, [
+    title,
+    visitDate,
+    description,
+    localPhotos,
+    isOnline,
+    saveAnalysis,
+    client.id,
+    router,
+    createMutation,
+  ]);
+
+  const handleStepOneFiles = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = e.target.files;
+      if (!files || files.length === 0) return;
+      const filesArray = Array.from(files);
+      const next: LocalPhotoPreview[] = filesArray.map((file) => ({
+        key: `${file.name}-${file.lastModified}-${file.size}-${Math.random()
+          .toString(36)
+          .slice(2, 8)}`,
+        file,
+        previewUrl: URL.createObjectURL(file),
+        description: "",
+      }));
+      setLocalPhotos((prev) => [...prev, ...next]);
+      if (stepOneFileInputRef.current) stepOneFileInputRef.current.value = "";
+    },
+    [],
+  );
+
+  const handleRemoveStepOnePhoto = useCallback((key: string) => {
+    setLocalPhotos((prev) => {
+      const target = prev.find((p) => p.key === key);
+      if (target) URL.revokeObjectURL(target.previewUrl);
+      return prev.filter((p) => p.key !== key);
+    });
+  }, []);
 
   const shareUrl =
     createdAnalysis && typeof window !== "undefined"
@@ -363,7 +444,10 @@ export function AnalysisNewPage({ client }: AnalysisNewPageProps) {
     setLightboxIndex((i) => (i === null ? null : (i + 1) % photos.length));
 
   const canCreate =
-    title.trim().length >= 2 && !!visitDate && !createMutation.isPending;
+    title.trim().length >= 2 &&
+    !!visitDate &&
+    !createMutation.isPending &&
+    !isSaving;
   const currentStepIndex = STEPS.findIndex((s) => s.id === currentStep);
 
   return (
@@ -476,7 +560,14 @@ export function AnalysisNewPage({ client }: AnalysisNewPageProps) {
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="analysisDesc">Descrição</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="analysisDesc">Descrição</Label>
+                <AiRewriteButton
+                  value={description}
+                  onRewrite={setDescription}
+                  variant="description"
+                />
+              </div>
               <Textarea
                 id="analysisDesc"
                 value={description}
@@ -484,6 +575,70 @@ export function AnalysisNewPage({ client }: AnalysisNewPageProps) {
                 rows={4}
                 placeholder="Observações gerais..."
               />
+            </div>
+
+            {!isOnline && (
+              <div className="rounded-lg border border-orange-500/40 bg-orange-500/10 p-3 text-sm text-orange-700 dark:text-orange-300">
+                <div className="flex items-center gap-2">
+                  <CloudOff className="h-4 w-4 shrink-0" />
+                  <p>
+                    <strong>Você está offline.</strong> Adicione as fotos aqui —
+                    tudo será salvo no dispositivo e sincronizado quando a
+                    conexão voltar.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>
+                  Fotos {!isOnline && `(${localPhotos.length})`}
+                </Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => stepOneFileInputRef.current?.click()}
+                >
+                  <Upload className="mr-2 h-3.5 w-3.5" />
+                  Adicionar fotos
+                </Button>
+                <input
+                  ref={stepOneFileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  multiple
+                  className="hidden"
+                  onChange={handleStepOneFiles}
+                />
+              </div>
+              {localPhotos.length > 0 && (
+                <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                  {localPhotos.map((p) => (
+                    <div
+                      key={p.key}
+                      className="bg-muted relative aspect-video overflow-hidden rounded-lg border"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={p.previewUrl}
+                        alt={p.file.name}
+                        className="h-full w-full object-cover"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="absolute right-1 top-1 h-6 w-6"
+                        onClick={() => handleRemoveStepOnePhoto(p.key)}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </CardContent>
           <div className="flex items-center justify-between border-t px-6 py-4">
@@ -493,13 +648,19 @@ export function AnalysisNewPage({ client }: AnalysisNewPageProps) {
                 Cancelar
               </Link>
             </Button>
-            <Button onClick={handleCreate} disabled={!canCreate}>
-              {createMutation.isPending ? (
+            <Button onClick={() => void handleCreate()} disabled={!canCreate}>
+              {isSaving || createMutation.isPending ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
                 <ArrowRight className="mr-2 h-4 w-4" />
               )}
-              {createMutation.isPending ? "Criando..." : "Criar e continuar"}
+              {isSaving
+                ? "Salvando..."
+                : createMutation.isPending
+                  ? "Criando..."
+                  : !isOnline
+                    ? "Salvar offline"
+                    : "Criar e continuar"}
             </Button>
           </div>
         </Card>
@@ -672,6 +833,14 @@ export function AnalysisNewPage({ client }: AnalysisNewPageProps) {
                         disabled={photo.isUploading}
                         rows={2}
                         className="resize-none text-sm"
+                      />
+                      <AiRewriteButton
+                        value={photo.description}
+                        onRewrite={(text) =>
+                          handleDescriptionChange(index, text)
+                        }
+                        variant="description"
+                        disabled={photo.isUploading}
                       />
                     </div>
                   </div>
