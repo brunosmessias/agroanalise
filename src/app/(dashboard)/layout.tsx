@@ -5,6 +5,8 @@ import { api } from "~/trpc/server";
 import { AppSidebar } from "~/components/layout/app-sidebar";
 import { Header } from "~/components/layout/header";
 import { InstallBanner } from "~/components/pwa/install-banner";
+import { SyncBanner } from "~/components/sync/sync-banner";
+import { SyncProvider } from "~/components/sync/sync-provider";
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 
 export default async function DashboardLayout({
@@ -36,8 +38,11 @@ export default async function DashboardLayout({
       <SidebarInset>
         <Header />
         <main className="px-4 py-6">
-          <InstallBanner />
-          {children}
+          <SyncProvider>
+            <InstallBanner />
+            <SyncBanner />
+            {children}
+          </SyncProvider>
         </main>
       </SidebarInset>
     </SidebarProvider>
