@@ -1,7 +1,7 @@
 # AgroAnalise — STATE
 
 **Last Updated:** 2026-06-07
-**Current Work:** PWA instalável (manifest + ícones + banner) — concluído
+**Current Work:** Sincronização offline para campo (concluída)
 
 ---
 
@@ -55,6 +55,12 @@
 **Trade-off:** Sem cache offline de páginas HTML (mas criação offline de dados continua funcionando via offline-sync)
 **Impact:** Manifest estático em `public/`, hook `useInstallPrompt`, banner em `(dashboard)/layout.tsx`, ícones 192/512/180 gerados via sharp
 
+### AD-009: Dexie para fila offline de análises (2026-06-07)
+**Decision:** Usar Dexie.js como wrapper de IndexedDB para armazenar análises e fotos pendentes de sincronização
+**Reason:** API muito mais amigável que raw IndexedDB, suporte a queries reativas, menos boilerplate; dados binários (Blob) suportados nativamente
+**Trade-off:** +12kB no bundle cliente; dependência adicional
+**Impact:** Schema `AgroAnaliseOffline` com tabelas `pendingAnalyses` + `pendingPhotos`, fila em `src/lib/offline/sync-queue.ts`, hooks `useSyncStatus` + `useOfflineAnalysis`, componentes `SyncBadge` + `SyncBanner` + `SyncProvider`. Detecção de conexão via `navigator.onLine` + eventos `online`/`offline`; sync automático ao reconectar
+
 ---
 
 ## Active Blockers
@@ -100,3 +106,4 @@
 - [x] Integração IA para melhoria de textos
 - [x] Dashboard com métricas
 - [x] PWA instalável (manifest + banner)
+- [x] Sincronização offline de análises (Dexie + sync queue)
