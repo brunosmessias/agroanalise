@@ -5,29 +5,10 @@ import {
   View,
   Image,
   StyleSheet,
-  Font,
 } from "@react-pdf/renderer";
 import type { RouterOutputs } from "~/trpc/react";
 
 type AnalysisData = NonNullable<RouterOutputs["analyses"]["getBySlug"]>;
-
-Font.register({
-  family: "Inter",
-  fonts: [
-    {
-      src: "https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfAZ9hiA.ttf",
-      fontWeight: 400,
-    },
-    {
-      src: "https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuI6fAZ9hiA.ttf",
-      fontWeight: 600,
-    },
-    {
-      src: "https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuFuYAZ9hiA.ttf",
-      fontWeight: 700,
-    },
-  ],
-});
 
 const colors = {
   primary: "#16a34a",
@@ -41,7 +22,6 @@ const colors = {
 
 const styles = StyleSheet.create({
   page: {
-    fontFamily: "Inter",
     fontSize: 10,
     color: colors.text,
     padding: 0,
@@ -112,13 +92,14 @@ const styles = StyleSheet.create({
   },
   coverMeta: {
     flexDirection: "row",
-    gap: 20,
-    marginTop: 16,
+    gap: 32,
+    marginTop: 18,
+    paddingTop: 14,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
   },
   metaItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
+    flexDirection: "column",
   },
   metaLabel: {
     fontSize: 7,
@@ -127,54 +108,10 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
   metaValue: {
-    fontSize: 9,
-    fontWeight: 600,
-    color: colors.text,
-  },
-
-  statsStrip: {
-    flexDirection: "row",
-    marginHorizontal: 40,
-    marginTop: 8,
-    marginBottom: 24,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 8,
-    overflow: "hidden",
-  },
-  statItem: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRightWidth: 1,
-    borderRightColor: colors.border,
-  },
-  statIcon: {
-    width: 28,
-    height: 28,
-    borderRadius: 6,
-    backgroundColor: colors.primaryLight,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  statIconText: {
     fontSize: 10,
-    fontWeight: 700,
-    color: colors.primary,
-  },
-  statLabel: {
-    fontSize: 7,
-    fontWeight: 600,
-    color: colors.textSecondary,
-    letterSpacing: 0.6,
-  },
-  statValue: {
-    fontSize: 9,
     fontWeight: 600,
     color: colors.text,
+    marginTop: 2,
   },
 
   sectionTitle: {
@@ -189,11 +126,6 @@ const styles = StyleSheet.create({
     fontWeight: 700,
     color: colors.text,
     marginBottom: 4,
-  },
-  sectionDesc: {
-    fontSize: 9,
-    color: colors.textSecondary,
-    lineHeight: 1.4,
   },
   sectionHeader: {
     paddingHorizontal: 40,
@@ -453,61 +385,16 @@ export function AnalysisPdfDocument({ data }: AnalysisPdfDocumentProps) {
             <Text style={styles.description}>{description}</Text>
           )}
           <View style={styles.coverMeta}>
-            {client && (
-              <View style={styles.metaItem}>
-                <View>
-                  <Text style={styles.metaLabel}>FAZENDA</Text>
-                  <Text style={styles.metaValue}>{client.name}</Text>
-                </View>
-              </View>
-            )}
             <View style={styles.metaItem}>
-              <View>
-                <Text style={styles.metaLabel}>DATA DA VISITA</Text>
-                <Text style={styles.metaValue}>{formattedDate}</Text>
-              </View>
+              <Text style={styles.metaLabel}>DATA DA VISITA</Text>
+              <Text style={styles.metaValue}>{formattedDate}</Text>
             </View>
             {location && (
               <View style={styles.metaItem}>
-                <View>
-                  <Text style={styles.metaLabel}>LOCALIZAÇÃO</Text>
-                  <Text style={styles.metaValue}>{location}</Text>
-                </View>
+                <Text style={styles.metaLabel}>LOCALIZAÇÃO</Text>
+                <Text style={styles.metaValue}>{location}</Text>
               </View>
             )}
-          </View>
-        </View>
-
-        {/* Stats Strip */}
-        <View style={styles.statsStrip}>
-          <View style={styles.statItem}>
-            <View style={styles.statIcon}>
-              <Text style={styles.statIconText}>D</Text>
-            </View>
-            <View>
-              <Text style={styles.statLabel}>DATA DA ANÁLISE</Text>
-              <Text style={styles.statValue}>{formattedDate}</Text>
-            </View>
-          </View>
-          <View style={styles.statItem}>
-            <View style={styles.statIcon}>
-              <Text style={styles.statIconText}>F</Text>
-            </View>
-            <View>
-              <Text style={styles.statLabel}>REGISTROS FOTOGRÁFICOS</Text>
-              <Text style={styles.statValue}>
-                {photoCount} foto{photoCount !== 1 ? "s" : ""}
-              </Text>
-            </View>
-          </View>
-          <View style={[styles.statItem, { borderRightWidth: 0 }]}>
-            <View style={styles.statIcon}>
-              <Text style={styles.statIconText}>L</Text>
-            </View>
-            <View>
-              <Text style={styles.statLabel}>LOCALIZAÇÃO</Text>
-              <Text style={styles.statValue}>{location ?? "Não informada"}</Text>
-            </View>
           </View>
         </View>
 
@@ -517,9 +404,6 @@ export function AnalysisPdfDocument({ data }: AnalysisPdfDocumentProps) {
             <Text style={styles.sectionTitle}>ANÁLISE FOTOGRÁFICA</Text>
             <Text style={styles.sectionHeading}>
               Registros fotográficos
-            </Text>
-            <Text style={styles.sectionDesc}>
-              {photoCount} registro{photoCount !== 1 ? "s" : ""} fotográfico{photoCount !== 1 ? "s" : ""}, cada um com a descrição técnica do agrônomo.
             </Text>
           </View>
         )}
